@@ -185,7 +185,7 @@ const AREAS = [
 const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyPHkUgE0d04pVMCulO41QhvIYGBeEdFipPqClcQ2T6VMpCV6dXyKvw_Of5qPZC5sN5CQ/exec';
 
 // 상/중/하 개수 → A~D 등급 (제공된 표 기준)
-function gradesTo Letter(ev) {
+function gradesToLetter(ev) {
   const grades = AREAS.map(a => ev[a.key]?.등급 || '하');
   const 상 = grades.filter(g => g === '상').length;
   const 중 = grades.filter(g => g === '중').length;
