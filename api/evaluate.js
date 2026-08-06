@@ -166,7 +166,15 @@ ${CRITERIA}
     }
     const data = await response.json();
     const raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
-    return res.status(200).json(JSON.parse(raw));
+    const parsed = JSON.parse(raw);
+// 등급 누락 시 이유에서 추론하거나 기본값 설정
+const keys = ['응답속도정확성', '주도적안내격려', '피드백구체성', '정서적지지동기'];
+keys.forEach(k => {
+  if (parsed[k] && !['상','중','하'].includes(parsed[k].등급)) {
+    parsed[k].등급 = '중'; // 기본값
+  }
+});
+return res.status(200).json(parsed);
   } catch (e) {
     return res.status(500).json({ error: e.message });
   }
