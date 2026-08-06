@@ -88,7 +88,9 @@ ${CRITERIA}
   "주도적안내격려": {"등급": "상|중|하", "이유": "1~2문장 근거"},
   "피드백구체성": {"등급": "상|중|하", "이유": "1~2문장 근거"},
   "정서적지지동기": {"등급": "상|중|하", "이유": "1~2문장 근거"}
-}`;
+}
+
+중요: 반드시 모든 4개 영역에 등급(상/중/하 중 하나)을 빠짐없이 입력하세요. 등급이 누락되면 안 됩니다.`;
 
   // 월별 전체 평가 모드 (3~7월 자동 분리)
   if (allMonths && isCSV) {
@@ -120,8 +122,14 @@ ${CRITERIA}
         if (!response.ok) continue;
         const data = await response.json();
         const raw = data.content[0].text.trim().replace(/```json|```/g, '').trim();
-        monthResults[month] = JSON.parse(raw);
-      } catch (e) {
+const monthParsed = JSON.parse(raw);
+const keys = ['응답속도정확성', '주도적안내격려', '피드백구체성', '정서적지지동기'];
+keys.forEach(k => {
+  if (monthParsed[k] && !['상','중','하'].includes(monthParsed[k].등급)) {
+    monthParsed[k].등급 = '중';
+  }
+});
+monthResults[month] = monthParsed;      } catch (e) {
         continue;
       }
     }
