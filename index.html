@@ -380,7 +380,7 @@ function renderStudentCard({ studentName, eval: ev }) {
           <div class="eval-item">
             <p class="eval-label">${a.label}</p>
             <p class="eval-grade grade-${ev[a.key]?.등급}">${ev[a.key]?.등급 || '-'}</p>
-            <p class="eval-reason">${ev[a.key]?.이유 || ''}</p>
+            <p class="eval-reason" contenteditable="true" title="클릭해서 수정 가능">${ev[a.key]?.이유 || ''}</p>
           </div>`).join('')}
       </div>
     </div>`;
