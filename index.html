@@ -70,7 +70,23 @@
   .grade-상 { color: var(--green); }
   .grade-중 { color: var(--amber); }
   .grade-하 { color: var(--red); }
-  .eval-reason { font-size: 11px; color: var(--text2); line-height: 1.55; }
+  .eval-reason {
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.55;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  transition: background 0.15s;
+}
+.eval-reason:hover {
+  background: rgba(0,0,0,0.05);
+}
+.eval-reason:hover::after {
+  content: ' ✏️';
+  font-size: 10px;
+}
 
   .summary-card { background: var(--text); border-radius: var(--radius); padding: 24px; margin-top: 20px; color: #fff; }
   .summary-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
