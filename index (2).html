@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>컨설턴트 카카오톡 소통 평가</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #f7f6f3; --surface: #ffffff; --surface2: #f0efe9;
+    --border: rgba(0,0,0,0.1); --border2: rgba(0,0,0,0.18);
+    --text: #1a1916; --text2: #6b6a65; --text3: #9e9d98;
+    --green: #0f6e56; --green-bg: #e1f5ee;
+    --amber: #854f0b; --amber-bg: #faeeda;
+    --red: #a32d2d; --red-bg: #fcebeb;
+    --radius: 10px; --radius-sm: 6px;
+  }
+  body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; font-size: 15px; line-height: 1.6; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+  header { margin-bottom: 40px; }
+  .header-badge { display: inline-block; font-size: 11px; font-weight: 500; letter-spacing: 0.08em; color: var(--text2); text-transform: uppercase; background: var(--surface2); border: 0.5px solid var(--border); border-radius: 20px; padding: 3px 10px; margin-bottom: 12px; }
+  h1 { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; }
+  h1 span { color: var(--text2); font-weight: 400; }
+  .section-label { font-size: 11px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text3); margin-bottom: 10px; }
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 20px 22px; margin-bottom: 12px; }
+  .info-grid { display: grid; grid-template-columns: 1fr 100px 110px; gap: 10px; }
+  input, select { width: 100%; height: 38px; padding: 0 12px; font-size: 14px; font-family: inherit; color: var(--text); background: var(--surface); border: 0.5px solid var(--border2); border-radius: var(--radius-sm); outline: none; }
+  input::placeholder { color: var(--text3); }
+
+  .mode-tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+  .mode-tab { flex: 1; height: 36px; font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; border: 0.5px solid var(--border2); border-radius: var(--radius-sm); background: var(--surface2); color: var(--text2); transition: all 0.15s; }
+  .mode-tab.active { background: var(--text); color: #fff; border-color: var(--text); }
+
+  .drop-zone { border: 1.5px dashed var(--border2); border-radius: var(--radius); padding: 32px 24px; text-align: center; cursor: pointer; transition: background 0.15s; }
+  .drop-zone:hover, .drop-zone.over { background: var(--surface2); }
+  .drop-icon { width: 36px; height: 36px; margin: 0 auto 10px; background: var(--surface2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .drop-zone strong { display: block; font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .drop-zone p { font-size: 13px; color: var(--text2); }
+  .file-list { margin-top: 12px; display: flex; flex-direction: column; gap: 5px; }
+  .file-chip { display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; background: var(--surface2); border-radius: var(--radius-sm); font-size: 13px; }
+  .file-chip button { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 17px; line-height: 1; }
+  .run-btn { width: 100%; height: 42px; margin-top: 16px; font-size: 14px; font-weight: 500; font-family: inherit; cursor: pointer; background: var(--text); color: #fff; border: none; border-radius: var(--radius-sm); transition: opacity 0.15s; }
+  .run-btn:hover { opacity: 0.85; }
+  .run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .progress-wrap { margin-top: 14px; display: none; }
+  .progress-track { background: var(--surface2); border-radius: 4px; height: 3px; overflow: hidden; }
+  .progress-fill { height: 3px; background: var(--green); border-radius: 4px; width: 0%; transition: width 0.4s ease; }
+  .status-text { font-size: 12px; color: var(--text2); margin-top: 7px; min-height: 18px; }
+  .error-text { font-size: 13px; color: var(--red); margin-top: 6px; }
+
+  .results-section { margin-top: 36px; }
+  .student-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 18px 22px; margin-bottom: 10px; }
+  .student-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .student-name { font-size: 14px; font-weight: 500; }
+  .student-grade-badge { font-size: 12px; padding: 2px 10px; border-radius: 20px; font-weight: 500; }
+  .badge-A { background: var(--green-bg); color: var(--green); }
+  .badge-B { background: #e6f1fb; color: #185fa5; }
+  .badge-C { background: var(--amber-bg); color: var(--amber); }
+  .badge-D { background: var(--red-bg); color: var(--red); }
+
+  /* 월별 탭 */
+  .month-tabs { display: flex; gap: 4px; margin-bottom: 12px; flex-wrap: wrap; }
+  .month-tab-btn { height: 28px; padding: 0 12px; font-size: 12px; font-weight: 500; font-family: inherit; cursor: pointer; border: 0.5px solid var(--border2); border-radius: 20px; background: var(--surface2); color: var(--text2); transition: all 0.15s; }
+  .month-tab-btn.active { background: var(--text); color: #fff; border-color: var(--text); }
+
+  .eval-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .eval-item { background: var(--surface2); border-radius: var(--radius-sm); padding: 10px 12px; }
+  .eval-label { font-size: 11px; color: var(--text3); margin-bottom: 4px; }
+  .eval-grade { font-size: 16px; font-weight: 600; margin-bottom: 3px; }
+  .grade-상 { color: var(--green); }
+  .grade-중 { color: var(--amber); }
+  .grade-하 { color: var(--red); }
+  .eval-grade-select {
+    font-size: 16px; font-weight: 600; margin-bottom: 3px;
+    border: none; background: transparent; padding: 0 16px 0 0; cursor: pointer;
+    font-family: inherit; -webkit-appearance: none; appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239e9d98'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 2px center;
+  }
+  .eval-grade-select:hover { text-decoration: underline; }
+  .eval-grade-select:focus { outline: none; }
+  .eval-reason {
+  font-size: 11px;
+  color: var(--text2);
+  line-height: 1.55;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  transition: background 0.15s;
+}
+.eval-reason:hover {
+  background: rgba(0,0,0,0.05);
+}
+.eval-reason:hover::after {
+  content: ' ✏️';
+  font-size: 10px;
+}
+.eval-reason-warning {
+  color: var(--red);
+  font-weight: 600;
+  background: rgba(220,50,50,0.08);
+}
+
+  .summary-card { background: var(--text); border-radius: var(--radius); padding: 24px; margin-top: 20px; color: #fff; }
+  .summary-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+  .summary-header h2 { font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.7); }
+  .grade-pill { font-size: 13px; font-weight: 600; padding: 3px 14px; border-radius: 20px; background: rgba(255,255,255,0.15); color: #fff; }
+  .summary-metrics { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .s-metric { background: rgba(255,255,255,0.07); border-radius: var(--radius-sm); padding: 12px 14px; }
+  .s-metric .label { font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+  .s-metric .value { font-size: 18px; font-weight: 600; color: #fff; }
+  .area-scores { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+  .area-score-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.07); border-radius: var(--radius-sm); padding: 9px 12px; }
+  .area-score-item .a-label { font-size: 12px; color: rgba(255,255,255,0.6); }
+  .area-score-item .a-val { font-size: 13px; font-weight: 500; color: #fff; }
+  .action-row { display: flex; gap: 8px; }
+  .action-btn { flex: 1; height: 36px; font-size: 13px; font-weight: 500; font-family: inherit; cursor: pointer; border-radius: var(--radius-sm); transition: opacity 0.15s; }
+  .btn-copy { background: rgba(255,255,255,0.12); color: #fff; border: 0.5px solid rgba(255,255,255,0.2); }
+  .btn-copy:hover { opacity: 0.8; }
+  .btn-sheet { background: #1D9E75; color: #fff; border: none; }
+  .btn-sheet:hover { opacity: 0.85; }
+  .btn-pdf { background: #3B5BDB; color: #fff; border: none; }
+  .btn-pdf:hover { opacity: 0.85; }
+
+  @media print {
+    .no-print { display: none !important; }
+    body { background: white; }
+    .wrap { padding: 20px; }
+    .summary-card { background: #1a1916 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media (max-width: 560px) {
+    .info-grid { grid-template-columns: 1fr 1fr; }
+    .info-grid input:first-child { grid-column: 1 / -1; }
+    .eval-grid { grid-template-columns: 1fr; }
+    .summary-metrics { grid-template-columns: 1fr 1fr; }
+    .area-scores { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="main-wrap">
+  <header>
+    <div class="header-badge no-print">유니브클래스 · 내부 운영 도구</div>
+    <h1>컨설턴트 카카오톡 소통 평가 <span>월별 자동 분석</span></h1>
+  </header>
+
+  <div class="no-print">
+    <p class="section-label">컨설턴트 정보</p>
+    <div class="card">
+      <div class="info-grid">
+        <input id="consultant-name" type="text" placeholder="컨설턴트 이름" />
+        <select id="eval-month"></select>
+        <input id="student-count" type="number" placeholder="담당 학생 수" min="1" max="30" />
+      </div>
+    </div>
+
+    <p class="section-label" style="margin-top:20px">평가 모드</p>
+    <div class="card">
+      <div class="mode-tabs">
+        <button class="mode-tab active" id="tab-single" onclick="setMode('single')">단일 월 평가</button>
+        <button class="mode-tab" id="tab-all" onclick="setMode('all')">전체 기간 평가 (3~7월)</button>
+      </div>
+      <p id="mode-desc" style="font-size:13px;color:var(--text2);margin-bottom:16px">선택한 월의 대화만 분석해요.</p>
+
+      <div class="drop-zone" id="drop-zone">
+        <div class="drop-icon">📂</div>
+        <strong>파일을 드래그하거나 클릭해서 선택</strong>
+        <p id="drop-desc">학생별 .txt 또는 .csv 파일 여러 개 동시 선택 가능</p>
+        <input type="file" id="file-input" accept=".txt,.csv" multiple style="display:none" />
+      </div>
+      <div class="file-list" id="file-list"></div>
+      <button class="run-btn" id="run-btn" disabled>AI 평가 시작</button>
+      <div class="progress-wrap" id="progress-wrap">
+        <div class="progress-track"><div class="progress-fill" id="progress-fill"></div></div>
+        <p class="status-text" id="status-text"></p>
+      </div>
+      <p class="error-text" id="error-text"></p>
+    </div>
+  </div>
+
+  <div class="results-section" id="results-section" style="display:none">
+    <p class="section-label no-print">학생별 평가 결과</p>
+    <div id="student-results"></div>
+    <div class="summary-card" id="summary-card" style="display:none">
+      <div class="summary-header">
+        <h2 id="summary-title">종합 평가</h2>
+        <span class="grade-pill" id="grade-pill"></span>
+      </div>
+      <div class="summary-metrics">
+        <div class="s-metric"><p class="label">카카오톡 파트 인센티브</p><p class="value" id="s-incentive"></p></div>
+        <div class="s-metric"><p class="label">종합 등급</p><p class="value" id="s-grade"></p></div>
+        <div class="s-metric"><p class="label">분석 학생 수</p><p class="value" id="s-count"></p></div>
+        <div class="s-metric"><p class="label">평균 점수</p><p class="value" id="s-score"></p></div>
+      </div>
+      <div class="area-scores" id="area-scores"></div>
+      <div class="action-row no-print">
+        <button class="action-btn btn-copy" id="copy-btn">결과 텍스트 복사</button>
+        <button class="action-btn btn-sheet" id="sheet-btn">구글 시트로 내보내기</button>
+        <button class="action-btn btn-pdf" id="pdf-btn" onclick="downloadPDF()">PDF 다운로드</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const AREAS = [
+  { key: '응답속도정확성', label: '응답속도·정확성' },
+  { key: '주도적안내격려', label: '주도적 안내·격려' },
+  { key: '피드백구체성',   label: '피드백 구체성' },
+  { key: '정서적지지동기', label: '정서적 지지·동기' },
+];
+
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbyPHkUgE0d04pVMCulO41QhvIYGBeEdFipPqClcQ2T6VMpCV6dXyKvw_Of5qPZC5sN5CQ/exec';
+
+// 상/중/하 개수 → A~D 등급 (제공된 표 기준)
+function gradesToLetter(ev) {
+  const grades = AREAS.map(a => ev[a.key]?.등급 || '하');
+  const 상 = grades.filter(g => g === '상').length;
+  const 중 = grades.filter(g => g === '중').length;
+  const 하 = grades.filter(g => g === '하').length;
+  if (상 === 4) return 'A';
+  if (상 === 3 && 중 === 1) return 'A';
+  if (상 === 3 && 하 === 1) return 'B';
+  if (상 === 2 && 중 === 2) return 'B';
+  if (상 === 1 && 중 === 3) return 'B';
+  if (상 === 2 && 중 === 1 && 하 === 1) return 'C';
+  if (상 === 1 && 중 === 2 && 하 === 1) return 'C';
+  return 'D';
+}
+
+function letterToPoints(l) { return { A: 4, B: 3, C: 2, D: 1 }[l] || 1; }
+
+function avgScoreToLetter(avg) {
+  if (avg >= 3.50) return 'A';
+  if (avg >= 3.00) return 'B';
+  if (avg >= 2.50) return 'C';
+  return 'D';
+}
+
+let currentMode = 'single';
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('tab-single').classList.toggle('active', mode === 'single');
+  document.getElementById('tab-all').classList.toggle('active', mode === 'all');
+  document.getElementById('eval-month').style.opacity = mode === 'single' ? '1' : '0.4';
+  document.getElementById('eval-month').disabled = mode === 'all';
+  document.getElementById('mode-desc').textContent = mode === 'single'
+    ? '선택한 월의 대화만 분석해요.'
+    : '3월~7월 전체를 월별로 자동 분리해서 평가해요. 파일 1개당 5개월치 분석이 진행돼요.';
+}
+
+// month select
+const monthSel = document.getElementById('eval-month');
+for (let i = 1; i <= 12; i++) {
+  const o = document.createElement('option');
+  o.value = i; o.textContent = `${i}월`;
+  monthSel.appendChild(o);
+}
+monthSel.value = new Date().getMonth() + 1;
+
+// file handling
+let files = [];
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const fileList = document.getElementById('file-list');
+const runBtn = document.getElementById('run-btn');
+const progressWrap = document.getElementById('progress-wrap');
+const progressFill = document.getElementById('progress-fill');
+const statusText = document.getElementById('status-text');
+const errorText = document.getElementById('error-text');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('over'));
+dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('over'); addFiles([...e.dataTransfer.files]); });
+fileInput.addEventListener('change', () => addFiles([...fileInput.files]));
+
+function addFiles(newFiles) {
+  newFiles.forEach(f => {
+    if ((f.name.endsWith('.txt') || f.name.endsWith('.csv')) && !files.find(x => x.name === f.name)) files.push(f);
+  });
+  renderFiles();
+}
+function removeFile(i) { files.splice(i, 1); renderFiles(); }
+function renderFiles() {
+  fileList.innerHTML = files.map((f, i) =>
+    `<div class="file-chip"><span>${f.name}</span><button onclick="removeFile(${i})">×</button></div>`
+  ).join('');
+  runBtn.disabled = files.length === 0;
+}
+
+function extractStudentName(filename) {
+  const nameMatch = filename.match(/생기부\]?_?([가-힣]{2,4})/);
+  if (nameMatch) return nameMatch[1];
+  const tokens = filename.replace(/\.(txt|csv)$/i, '').split(/[_\[\]\s]+/).filter(s => /^[가-힣]{2,4}$/.test(s));
+  return tokens[0] || filename;
+}
+
+async function analyzeFile(file, monthOverride) {
+  const text = await file.text();
+  const isCSV = file.name.toLowerCase().endsWith('.csv');
+  const studentName = extractStudentName(file.name);
+  const targetMonth = monthOverride || monthSel.value;
+
+  const res = await fetch('/api/evaluate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ logText: text, studentName, targetMonth, isCSV }),
+  });
+  if (!res.ok) { const err = await res.json(); throw new Error(err.error || '서버 오류'); }
+  return { studentName, eval: await res.json() };
+}
+
+async function analyzeFileAllMonths(file) {
+  const text = await file.text();
+  const isCSV = file.name.toLowerCase().endsWith('.csv');
+  const studentName = extractStudentName(file.name);
+
+  const res = await fetch('/api/evaluate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ logText: text, studentName, isCSV, allMonths: true }),
+  });
+  if (!res.ok) { const err = await res.json(); throw new Error(err.error || '서버 오류'); }
+  const data = await res.json();
+  return { studentName, monthResults: data.monthResults };
+}
+
+let results = [];
+let lastRunParams = null;
+
+runBtn.addEventListener('click', async () => {
+  const name = document.getElementById('consultant-name').value.trim();
+  const count = parseInt(document.getElementById('student-count').value) || files.length;
+  if (!name) { errorText.textContent = '컨설턴트 이름을 입력해주세요.'; return; }
+  errorText.textContent = '';
+  results = [];
+  lastRunParams = { name, count, month: monthSel.value };
+  document.getElementById('student-results').innerHTML = '';
+  document.getElementById('results-section').style.display = 'block';
+  document.getElementById('summary-card').style.display = 'none';
+  progressWrap.style.display = 'block';
+  progressFill.style.width = '0%';
+  runBtn.disabled = true;
+
+  if (currentMode === 'all') {
+    // 월별 전체 평가 모드
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      statusText.textContent = `분석 중 (${i + 1}/${files.length}): ${extractStudentName(f.name)} — 3~7월`;
+      progressFill.style.width = `${Math.round((i / files.length) * 100)}%`;
+      try {
+        const result = await analyzeFileAllMonths(f);
+        results.push(result);
+        renderStudentCardAllMonths(result, results.length - 1);
+      } catch (e) {
+        errorText.textContent = `${f.name} 분석 실패: ${e.message}`;
+      }
+    }
+    progressFill.style.width = '100%';
+    statusText.textContent = `완료 (${results.length}명 분석됨)`;
+    renderSummaryAllMonths(name, count);
+  } else {
+    // 단일 월 평가 모드
+    for (let i = 0; i < files.length; i++) {
+      const f = files[i];
+      statusText.textContent = `분석 중 (${i + 1}/${files.length}): ${extractStudentName(f.name)}`;
+      progressFill.style.width = `${Math.round((i / files.length) * 100)}%`;
+      try {
+        const result = await analyzeFile(f);
+        results.push(result);
+        renderStudentCard(result, results.length - 1);
+      } catch (e) {
+        errorText.textContent = `${f.name} 분석 실패: ${e.message}`;
+      }
+    }
+    progressFill.style.width = '100%';
+    statusText.textContent = `완료 (${results.length}명 분석됨)`;
+    renderSummary(name, monthSel.value, count);
+  }
+  runBtn.disabled = false;
+});
+
+function renderStudentCard({ studentName, eval: ev }, idx) {
+  const letter = gradesToLetter(ev);
+  const html = `
+    <div class="student-card">
+      <div class="student-header">
+        <p class="student-name">${studentName}</p>
+        <span class="student-grade-badge badge-${letter}" id="badge-${idx}">${letter}등급</span>
+      </div>
+      <div class="eval-grid">
+        ${AREAS.map(a => `
+          <div class="eval-item">
+            <p class="eval-label">${a.label}</p>
+            ${gradeSelectHtml(ev[a.key]?.등급, idx, a.key)}
+            <p class="eval-reason${(ev[a.key]?.이유 || '').startsWith('⚠️') ? ' eval-reason-warning' : ''}" contenteditable="true" title="클릭해서 수정 가능" data-idx="${idx}" data-area="${a.key}" onblur="updateReason(this)">${ev[a.key]?.이유 || ''}</p>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  document.getElementById('student-results').insertAdjacentHTML('beforeend', html);
+}
+
+function gradeSelectHtml(grade, idx, areaKey, month) {
+  const g = grade || '하';
+  const monthAttr = month ? ` data-month="${month}"` : '';
+  return `
+    <select class="eval-grade-select grade-${g}" data-idx="${idx}" data-area="${areaKey}"${monthAttr} onchange="updateGrade(this)" title="등급 수정 가능">
+      <option value="상" ${g === '상' ? 'selected' : ''}>상</option>
+      <option value="중" ${g === '중' ? 'selected' : ''}>중</option>
+      <option value="하" ${g === '하' ? 'selected' : ''}>하</option>
+    </select>`;
+}
+
+function updateReason(el) {
+  const idx = parseInt(el.dataset.idx, 10);
+  const area = el.dataset.area;
+  const month = el.dataset.month;
+  const text = el.textContent.trim();
+
+  if (month) {
+    if (results[idx]?.monthResults?.[month]?.[area]) {
+      results[idx].monthResults[month][area].이유 = text;
+    }
+  } else {
+    if (results[idx]?.eval?.[area]) {
+      results[idx].eval[area].이유 = text;
+    }
+  }
+  el.classList.toggle('eval-reason-warning', text.startsWith('⚠️'));
+}
+
+function updateGrade(sel) {
+  const idx = parseInt(sel.dataset.idx, 10);
+  const area = sel.dataset.area;
+  const month = sel.dataset.month;
+  const val = sel.value;
+  sel.className = `eval-grade-select grade-${val}`;
+
+  if (month) {
+    results[idx].monthResults[month][area].등급 = val;
+    const letter = gradesToLetter(results[idx].monthResults[month]);
+    const badge = document.getElementById(`badge-${idx}-${month}`);
+    if (badge) { badge.textContent = `${letter}등급`; badge.className = `student-grade-badge badge-${letter}`; }
+    if (lastRunParams) renderSummaryAllMonths(lastRunParams.name, lastRunParams.count);
+  } else {
+    results[idx].eval[area].등급 = val;
+    const letter = gradesToLetter(results[idx].eval);
+    const badge = document.getElementById(`badge-${idx}`);
+    if (badge) { badge.textContent = `${letter}등급`; badge.className = `student-grade-badge badge-${letter}`; }
+    if (lastRunParams) renderSummary(lastRunParams.name, lastRunParams.month, lastRunParams.count);
+  }
+}
+
+function renderStudentCardAllMonths({ studentName, monthResults }, idx) {
+  const months = Object.keys(monthResults).map(Number).sort((a, b) => a - b);
+  if (months.length === 0) return;
+
+  const tabsHtml = months.map((m, i) => `
+    <button class="month-tab-btn ${i === 0 ? 'active' : ''}" onclick="switchMonth(this, '${studentName}-month-${m}')">${m}월</button>
+  `).join('');
+
+  const contentHtml = months.map((m, i) => {
+    const ev = monthResults[m];
+    const letter = gradesToLetter(ev);
+    return `
+      <div id="${studentName}-month-${m}" style="display:${i === 0 ? 'block' : 'none'}">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+          <span style="font-size:12px;color:var(--text2)">${m}월 평가</span>
+          <span class="student-grade-badge badge-${letter}" style="font-size:11px" id="badge-${idx}-${m}">${letter}등급</span>
+        </div>
+        <div class="eval-grid">
+          ${AREAS.map(a => `
+            <div class="eval-item">
+              <p class="eval-label">${a.label}</p>
+              ${gradeSelectHtml(ev[a.key]?.등급, idx, a.key, m)}
+              <p class="eval-reason${(ev[a.key]?.이유 || '').startsWith('⚠️') ? ' eval-reason-warning' : ''}" contenteditable="true" title="클릭해서 수정 가능" data-idx="${idx}" data-area="${a.key}" data-month="${m}" onblur="updateReason(this)">${ev[a.key]?.이유 || ''}</p>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  const html = `
+    <div class="student-card">
+      <div class="student-header">
+        <p class="student-name">${studentName}</p>
+      </div>
+      <div class="month-tabs">${tabsHtml}</div>
+      ${contentHtml}
+    </div>`;
+  document.getElementById('student-results').insertAdjacentHTML('beforeend', html);
+}
+
+function switchMonth(btn, targetId) {
+  const card = btn.closest('.student-card');
+  card.querySelectorAll('.month-tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  card.querySelectorAll('[id]').forEach(el => {
+    if (el.id && el.id !== targetId) el.style.display = 'none';
+  });
+  document.getElementById(targetId).style.display = 'block';
+}
+
+function gradesToLetter(ev) {
+  const grades = AREAS.map(a => ev[a.key]?.등급 || '하');
+  const 상 = grades.filter(g => g === '상').length;
+  const 중 = grades.filter(g => g === '중').length;
+  const 하 = grades.filter(g => g === '하').length;
+  if (상 === 4) return 'A';
+  if (상 === 3 && 중 === 1) return 'A';
+  if (상 === 3 && 하 === 1) return 'B';
+  if (상 === 2 && 중 === 2) return 'B';
+  if (상 === 1 && 중 === 3) return 'B';
+  if (상 === 2 && 중 === 1 && 하 === 1) return 'C';
+  if (상 === 1 && 중 === 2 && 하 === 1) return 'C';
+  return 'D';
+}
+
+function renderSummary(name, month, count) {
+  const letterPoints = results.map(r => letterToPoints(gradesToLetter(r.eval)));
+  const avg = letterPoints.reduce((s, v) => s + v, 0) / letterPoints.length;
+  const finalLetter = avgScoreToLetter(avg);
+  const incentive = Math.round(count * 100000 * (letterToPoints(finalLetter) / 4) * 0.5);
+
+  document.getElementById('summary-title').textContent = `${name} · ${month}월`;
+  document.getElementById('grade-pill').textContent = `${finalLetter}등급`;
+  document.getElementById('s-incentive').textContent = `₩${incentive.toLocaleString()}`;
+  document.getElementById('s-grade').textContent = `${finalLetter}등급`;
+  document.getElementById('s-count').textContent = `${results.length}명`;
+  document.getElementById('s-score').textContent = avg.toFixed(2);
+
+  const areaAvgs = AREAS.map(a => {
+    const vals = results.map(r => ({ 상: 3, 중: 2, 하: 1 })[r.eval[a.key]?.등급] || 2);
+    return vals.reduce((s, v) => s + v, 0) / vals.length;
+  });
+  document.getElementById('area-scores').innerHTML = AREAS.map((a, i) => `
+    <div class="area-score-item">
+      <span class="a-label">${a.label}</span>
+      <span class="a-val">${areaAvgs[i] >= 2.5 ? '상' : areaAvgs[i] >= 1.5 ? '중' : '하'} (${areaAvgs[i].toFixed(2)})</span>
+    </div>`).join('');
+
+  document.getElementById('summary-card').style.display = 'block';
+  setupButtons(name, month, count, finalLetter, avg, incentive);
+}
+
+function renderSummaryAllMonths(name, count) {
+  // 전체 학생 × 전체 월 평균
+  const allLetters = [];
+  results.forEach(r => {
+    Object.values(r.monthResults).forEach(ev => allLetters.push(letterToPoints(gradesToLetter(ev))));
+  });
+  const avg = allLetters.length > 0 ? allLetters.reduce((s, v) => s + v, 0) / allLetters.length : 1;
+  const finalLetter = avgScoreToLetter(avg);
+  const incentive = Math.round(count * 100000 * (letterToPoints(finalLetter) / 4) * 0.5);
+
+  document.getElementById('summary-title').textContent = `${name} · 3~7월 전체`;
+  document.getElementById('grade-pill').textContent = `${finalLetter}등급`;
+  document.getElementById('s-incentive').textContent = `₩${incentive.toLocaleString()}`;
+  document.getElementById('s-grade').textContent = `${finalLetter}등급`;
+  document.getElementById('s-count').textContent = `${results.length}명`;
+  document.getElementById('s-score').textContent = avg.toFixed(2);
+  document.getElementById('area-scores').innerHTML = '';
+  document.getElementById('summary-card').style.display = 'block';
+  setupButtons(name, '3~7월', count, finalLetter, avg, incentive);
+}
+
+function setupButtons(name, month, count, finalLetter, avg, incentive) {
+  document.getElementById('copy-btn').onclick = () => {
+    const lines = [`[카카오톡 소통 평가] ${name} · ${month}\n`];
+    results.forEach(r => {
+      if (r.monthResults) {
+        lines.push(`▶ ${r.studentName}`);
+        Object.entries(r.monthResults).sort(([a], [b]) => a - b).forEach(([m, ev]) => {
+          lines.push(`  [${m}월] 등급: ${gradesToLetter(ev)}`);
+          AREAS.forEach(a => lines.push(`    ${a.label}: ${ev[a.key]?.등급} — ${ev[a.key]?.이유}`));
+        });
+      } else {
+        lines.push(`▶ ${r.studentName} (${gradesToLetter(r.eval)}등급)`);
+        AREAS.forEach(a => lines.push(`  ${a.label}: ${r.eval[a.key]?.등급} — ${r.eval[a.key]?.이유}`));
+      }
+      lines.push('');
+    });
+    lines.push(`종합 등급: ${finalLetter}등급 (평균 ${avg.toFixed(2)}점)`);
+    lines.push(`카카오톡 파트 인센티브: ₩${incentive.toLocaleString()}`);
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
+      const btn = document.getElementById('copy-btn');
+      btn.textContent = '복사 완료!';
+      setTimeout(() => { btn.textContent = '결과 텍스트 복사'; }, 2000);
+    });
+  };
+
+  document.getElementById('sheet-btn').onclick = async () => {
+    const btn = document.getElementById('sheet-btn');
+    btn.textContent = '전송 중...'; btn.disabled = true;
+    const payload = results.filter(r => r.eval).map(r => ({
+      name: r.studentName,
+      consultant: name,
+      응답속도정확성: r.eval.응답속도정확성?.등급 || '',
+      주도적안내격려: r.eval.주도적안내격려?.등급 || '',
+      피드백구체성: r.eval.피드백구체성?.등급 || '',
+      정서적지지동기: r.eval.정서적지지동기?.등급 || '',
+    }));
+    try {
+      await fetch('/api/sheet', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      btn.textContent = '전송 완료!';
+      setTimeout(() => { btn.textContent = '구글 시트로 내보내기'; btn.disabled = false; }, 2000);
+    } catch (e) { btn.textContent = '전송 실패'; btn.disabled = false; }
+  };
+}
+
+function downloadPDF() {
+  window.print();
+}
+</script>
+</body>
+</html>
